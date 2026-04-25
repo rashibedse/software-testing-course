@@ -9,9 +9,7 @@ const { test, expect } = require('@playwright/test');
 test.describe('Homepage', () => {
   
   test.beforeEach(async ({ page }) => {
-    // Clear cart before each test for consistent state
     await page.request.delete('http://localhost:3000/api/cart');
-    // Navigate to homepage before each test
     await page.goto('/');
   });
 
@@ -104,4 +102,15 @@ test.describe('Homepage', () => {
     await expect(authArea.locator('text=Sign Up')).toBeVisible();
   });
 
+  test('should filter products when searching', async ({ page }) => {
+    const searchInput = page.locator('#searchInput');
+    await searchInput.fill('Keyboard');
+    await page.locator('#searchBtn').click();
+    await page.waitForTimeout(500);
+
+    const products = page.locator('.product-card');
+    await expect(products).toHaveCount(1);
+
+    await expect(page.locator('.product-info h3')).toContainText('Keyboard');
+  });
 });
